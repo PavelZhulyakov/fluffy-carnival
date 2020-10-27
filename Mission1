@@ -1,13 +1,12 @@
 import requests
 
-
-def parser():
-    request = requests.get('https://r.onliner.by/sdapi/ak.api/search/apartments?page=1',
-                           data={"amount": "",
-                                 "currency": "",
-                                 "room_numbers": "",
-                                 "country": "",
-                                 "address": "",
-                                 "owner": True,
-                                 "ad_url": ""})
-    return request
+request = requests.get('https://r.onliner.by/sdapi/ak.api/search/apartments?page=1',
+                       data={"amount": "",
+                             "currency": "",
+                             "room_numbers": "",
+                             "country": "",
+                             "address": "",
+                             "owner": True,
+                             "ad_url": ""})
+print(request)
+    
