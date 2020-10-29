@@ -1,12 +1,25 @@
 import requests
 
-request = requests.get('https://r.onliner.by/sdapi/ak.api/search/apartments?page=1',
-                       data={"amount": "",
-                             "currency": "",
-                             "room_numbers": "",
-                             "country": "",
-                             "address": "",
-                             "owner": True,
-                             "ad_url": ""})
-print(request)
-    
+
+def get_onliner_apartments():
+
+    response = requests.get('https://r.onliner.by/sdapi/ak.api/search/apartments')
+    json_response = response.json()
+    first_page = json_response['page']['first']
+    for i in range(first_page):
+        response = requests.get(url='https://r.onliner.by/sdapi/ak.api/search/apartments', params={'page': 0})
+        json_response = response.json()
+
+        list_apartments = json_response['apartments']
+            apartments_info = {
+                "amount": "320.00",
+                "currency": "USD",
+                "room_numbers": "2",
+                "country": "Минск",
+                "address": "улица Руссиянова, 27 к1",
+                "owner": True,
+                "ad_url": "https://r.onliner.by/ak/apartments/605365"
+            }
+            list_apartments.append(apartments_info)
+
+    return list_apartments
