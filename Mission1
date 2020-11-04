@@ -18,7 +18,7 @@ def get_onliner_apartments():
             except IndexError:
                 street = ''
             apartments_info = {
-                "money_byn_usd": [{list_apartment['price']['converted']['BYN']}, {list_apartment['price']['converted']['USD']}],
+                "money_byn_usd": [value for key, value in list_apartment['price']['converted'].items()],
                 "room_numbers": list_apartment['rent_type'].split('_')[0],
                 "country": list_apartment['location']['address'].split(',')[0],
                 "address": street,
@@ -27,5 +27,8 @@ def get_onliner_apartments():
                 "pictures": list_apartment['photo']
             }
             flat_minsk.append(apartments_info)
-
+            
     return flat_minsk
+
+
+print(get_onliner_apartments())
