@@ -1,37 +1,46 @@
 import requests
+import dataclasses
 
+class Onliner_parser:
 
-class Parser:
-    
-    def get_onliner_apartments(self):
+    def __get_onliner_apartments(self):
 
         response = requests.get('https://r.onliner.by/sdapi/ak.api/search/apartments')
-        json_response = response.json()
-        last_page = json_response['page']['last']
-        flat_minsk = []
-        for i in range(last_page):
-            response = requests.get(url='https://r.onliner.by/sdapi/ak.api/search/apartments', params={'page': i})
-            json_response = response.json()
+        self.json_response = response.json()
+        return self.json_response
 
-            list_apartments = json_response['apartments']
+    def last_page_apartments(self):  
+        last_page = self.json_response['page']['last']  
+        for i in range(last_page): 
+            last_page(url='https://r.onliner.by/sdapi/ak.api/search/apartments', params={'page': i})
+            # json_response = response.json()
+
+            list_apartments = last_page['apartments']  
             for list_apartment in list_apartments:
                 try:
                     street = list_apartment['location']['address'].split(',')[1]
                 except IndexError:
                     street = ''
-                apartments_info = {
-                    "money_byn_usd": [value for key, value in list_apartment['price']['converted'].items()],
-                    "room_numbers": list_apartment['rent_type'].split('_')[0],
-                    "country": list_apartment['location']['address'].split(',')[0],
-                    "address": street,
-                    "owner": list_apartment['contact']['owner'],
-                    "ad_url": list_apartment['url'],
-                    "pictures": list_apartment['photo']
-                }
-                flat_minsk.append(apartments_info)
-
-        return flat_minsk
 
 
-p = Parser()
-print(p.get_onliner_apartments())
+                @dataclasses
+                class InventoryItem:
+                    money_byn_usd: list = [value for key, value in list_apartment['price']['converted'].items()]  
+                    room_numbers: list = list_apartment['rent_type'].split('_')[0]
+                    country: list = list_apartment['location']['address'].split(',')[0]
+                    address: any = street
+                    owner: list = list_apartment['contact']['owner']
+                    ad_url: list = list_apartment['url']
+                    pictures: list = list_apartment['photo']
+                    flat_minsk = (money_byn_usd, room_numbers,country, address, owner,ad_url, pictures)
+
+
+
+
+
+
+                    return flat_minsk
+
+
+p = Onliner_parser()
+print(p.last_page_apartments())
