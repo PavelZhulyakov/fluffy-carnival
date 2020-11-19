@@ -1,46 +1,67 @@
 import requests
-import dataclasses
+from dataclasses import dataclass
+
+
+@dataclass
+class InventoryItem:
+    money_byn_usd: list
+    room_numbers: str
+    country: str
+    address: str
+    owner: bool
+    ad_url: str
+    pictures: str
+
 
 class Onliner_parser:
 
-    def __get_onliner_apartments(self):
+    @staticmethod
+    def __get_onliner_apartments(url: str, params: dict):
+        response = requests.get(url, params=params)
+        json_response = response.json()
+        return json_response
 
-        response = requests.get('https://r.onliner.by/sdapi/ak.api/search/apartments')
-        self.json_response = response.json()
-        return self.json_response
-
-    def last_page_apartments(self):  
-        last_page = self.json_response['page']['last']  
-        for i in range(last_page): 
-            last_page(url='https://r.onliner.by/sdapi/ak.api/search/apartments', params={'page': i})
-            # json_response = response.json()
-
-            list_apartments = last_page['apartments']  
+    def get_apartments(self):
+        url = 'https://r.onliner.by/sdapi/ak.api/search/apartments'
+        json_response = self.__get_onliner_apartments(
+            url=url,
+            params={},
+        )
+        last_page = json_response['page']['last']
+        flat_minsk = []
+        for i in range(last_page):
+            json_response = self.__get_onliner_apartments(
+                url=url,
+                params={'page': i},
+            )
+            list_apartments = json_response['apartments']
             for list_apartment in list_apartments:
                 try:
                     street = list_apartment['location']['address'].split(',')[1]
                 except IndexError:
                     street = ''
 
+                money_byn_usd = [value for key, value in list_apartment['price']['converted'].items()]
+                room_numbers = list_apartment['rent_type'].split('_')[0]
+                country = list_apartment['location']['address'].split(',')[0]
+                address = street   #
+                owner = list_apartment['contact']['owner']
+                ad_url = list_apartment['url']   #
+                pictures = list_apartment['photo']
+                flat = InventoryItem(
+                    money_byn_usd=money_byn_usd,
+                    room_numbers=room_numbers,
+                    country=country,
+                    address=address,
+                    owner=owner,
+                    ad_url=ad_url,
+                    pictures=pictures,
+                )
+                flat_minsk.append(flat)   #
 
-                @dataclasses
-                class InventoryItem:
-                    money_byn_usd: list = [value for key, value in list_apartment['price']['converted'].items()]  
-                    room_numbers: list = list_apartment['rent_type'].split('_')[0]
-                    country: list = list_apartment['location']['address'].split(',')[0]
-                    address: any = street
-                    owner: list = list_apartment['contact']['owner']
-                    ad_url: list = list_apartment['url']
-                    pictures: list = list_apartment['photo']
-                    flat_minsk = (money_byn_usd, room_numbers,country, address, owner,ad_url, pictures)
-
-
-
-
-
-
-                    return flat_minsk
+        return flat_minsk
 
 
 p = Onliner_parser()
-print(p.last_page_apartments())
+ap = p.get_apartments()
+print(ap)
